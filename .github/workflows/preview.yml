@@ -1,0 +1,24 @@
+name: Generate WhatsApp preview PNG
+on:
+  push:
+    paths:
+      - '.github/workflows/preview.yml'
+      - 'anteprima.svg'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Convert preview to PNG
+        run: |
+          python -m pip install --user cairosvg
+          python -m cairosvg anteprima.svg -o anteprima.png
+      - name: Commit preview image
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add anteprima.png
+          git diff --cached --quiet || (git commit -m "Generate WhatsApp PNG preview" && git push)
